@@ -12,12 +12,22 @@ app.use(bodyParser.json());
 
 const mongoUrl = process.env.MONGODB_URL;
 
-mongoose.connect(mongoUrl,{
-}).then(()=>{
- console.log('database connected')
-}).catch(err=>{
-console.log('database not connected',err)
-})
+app.use("/enrollments", require("./routes/enrollments.js"));
+app.use("/courses", require("./routes/courses.js"));
+app.use("/notifications", require("./routes/notification.js"));
+app.use("/resources", require("./routes/resources.js"));
+app.use("/rooms", require("./routes/rooms.js"));
+app.use("/timetables", require("./routes/timetables.js"));
+app.use("/users", require("./routes/users.js"));
+
+mongoose
+  .connect(mongoUrl, {})
+  .then(() => {
+    console.log("database connected");
+  })
+  .catch((err) => {
+    console.log("database not connected", err);
+  });
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
