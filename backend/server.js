@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const dotenv = require("dotenv").config();
 const app = express();
+const {verifyAccessToken} = require('./authentication/jwt');
 
 const port = process.env.PORT || 8070;
 
@@ -12,12 +13,12 @@ app.use(bodyParser.json());
 
 const mongoUrl = process.env.MONGODB_URL;
 
-app.use("/enrollments", require("./routes/enrollments.js"));
-app.use("/courses", require("./routes/courses.js"));
-app.use("/notifications", require("./routes/notification.js"));
-app.use("/resources", require("./routes/resources.js"));
-app.use("/rooms", require("./routes/rooms.js"));
-app.use("/timetables", require("./routes/timetables.js"));
+app.use("/enrollments",verifyAccessToken, require("./routes/enrollments.js"));
+app.use("/courses",verifyAccessToken, require("./routes/courses.js"));
+app.use("/notifications",verifyAccessToken, require("./routes/notification.js"));
+app.use("/resources",verifyAccessToken, require("./routes/resources.js"));
+app.use("/rooms",verifyAccessToken, require("./routes/rooms.js"));
+app.use("/timetables",verifyAccessToken, require("./routes/timetables.js"));
 app.use("/users", require("./routes/users.js"));
 
 mongoose

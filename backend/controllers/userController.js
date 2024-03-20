@@ -1,4 +1,70 @@
-const User = require('../models/Users');
+const User = require("../models/Users");
+const { signAccessToken } = require("../authentication/jwt");
+const bcrypt = require("bcrypt");
+
+// Controller function for user login
+exports.loginUser = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Find user by username in the database
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if password is correct
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    // Create access token and send it to client
+    const accessToken = await signAccessToken(
+      user._id,
+      user.role,
+      user.username
+    );
+
+    // Respond with success message
+    res.status(200).json({ accessToken });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Controller function for user registration
+exports.registerUser = async (req, res) => {
+  try {
+    const { role, username, password } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // Create new user
+    const newUser = new User({ role, username, password });
+
+    // Save user to database
+    const savedUser = await newUser.save();
+
+    // Create access token and send it to client
+    const accessToken = await signAccessToken(
+      savedUser._id,
+      savedUser.role,
+      savedUser.username
+    );
+
+    // Respond with success message
+    res.status(201).json({ accessToken });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 // Controller function to get all users
 exports.getAllUsers = async (req, res) => {
@@ -8,7 +74,7 @@ exports.getAllUsers = async (req, res) => {
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -20,41 +86,41 @@ exports.getUserById = async (req, res) => {
     // Find user by ID in the database
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Respond with the user data
     res.status(200).json(user);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// Controller function to create a new user
-exports.createUser = async (req, res) => {
-  try {
-    const { role, username, password } = req.body;
+// // Controller function to create a new user
+// exports.createUser = async (req, res) => {
+//   try {
+//     const { role, username, password } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
+//     // Check if user already exists
+//     const existingUser = await User.findOne({ username });
+//     if (existingUser) {
+//       return res.status(400).json({ message: 'User already exists' });
+//     }
 
-    // Create new user
-    const newUser = new User({ role, username, password });
+//     // Create new user
+//     const newUser = new User({ role, username, password });
 
-    // Save user to database
-    await newUser.save();
+//     // Save user to database
+//     await newUser.save();
 
-    // Respond with success message
-    res.status(201).json({ message: 'User created successfully', user: newUser });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+//     // Respond with success message
+//     res.status(201).json({ message: 'User created successfully', user: newUser });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
 
 // Controller function to update a user by ID
 exports.updateUser = async (req, res) => {
@@ -65,7 +131,7 @@ exports.updateUser = async (req, res) => {
     // Find user by ID in the database
     let user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Update user properties
@@ -80,7 +146,7 @@ exports.updateUser = async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -92,13 +158,13 @@ exports.deleteUser = async (req, res) => {
     // Find user by ID and delete from the database
     const deletedUser = await User.findByIdAndDelete(userId);
     if (!deletedUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Respond with success message
-    res.status(200).json({ message: 'User deleted successfully' });
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
