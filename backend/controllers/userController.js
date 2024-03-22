@@ -1,5 +1,8 @@
 const User = require("../models/Users");
-const { signAccessToken } = require("../authentication/jwt");
+const {
+  signAccessToken,
+  signRefreshToken,
+} = require("../middleware/jwt_authentications");
 const bcrypt = require("bcrypt");
 
 // Controller function for user login
@@ -25,9 +28,14 @@ exports.loginUser = async (req, res) => {
       user.role,
       user.username
     );
+    const refreshToken = await signRefreshToken(
+      user._id,
+      user.role,
+      user.username
+    );
 
     // Respond with success message
-    res.status(200).json({ accessToken });
+    res.status(200).json({ accessToken, refreshToken, message: "Logged In!" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -57,9 +65,16 @@ exports.registerUser = async (req, res) => {
       savedUser.role,
       savedUser.username
     );
+    const refreshToken = await signRefreshToken(
+      savedUser._id,
+      savedUser.role,
+      savedUser.username
+    );
 
     // Respond with success message
-    res.status(201).json({ accessToken });
+    res
+      .status(201)
+      .json({ accessToken, refreshToken, message: "User created!" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
