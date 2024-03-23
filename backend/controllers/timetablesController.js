@@ -1,4 +1,5 @@
 const Timetable = require('../models/Timetables');
+const {sendEmail} = require('../service/emailService');
 
 // Controller function to get all timetables
 exports.getAllTimetables = async (req, res) => {
@@ -71,6 +72,8 @@ exports.updateTimetable = async (req, res) => {
 
     // Save updated timetable to the database
     timetable = await timetable.save();
+
+    sendEmail();
 
     // Respond with updated timetable data
     res.status(200).json(timetable);
