@@ -4,6 +4,7 @@ const {
   signRefreshToken,
 } = require("../middleware/jwt_authentications");
 const bcrypt = require("bcrypt");
+const logger = require("../service/logger");
 
 // Controller function for user login
 exports.loginUser = async (req, res) => {
@@ -33,6 +34,8 @@ exports.loginUser = async (req, res) => {
       user.role,
       user.username
     );
+
+    logger.info(`User ${user.username} logged in`);
 
     // Respond with success message
     res.status(200).json({ accessToken, refreshToken, message: "Logged In!" });
