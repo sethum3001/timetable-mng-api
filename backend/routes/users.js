@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const UserController = require("../controllers/userController");
 const { verifyAccessToken } = require("../middleware/jwt_authentications");
+const { allowRoles } = require("../middleware/authorization"); 
 
 // login
 router.get("/login", UserController.loginUser);
@@ -13,18 +14,15 @@ router.post("/register", UserController.registerUser);
 router.use(verifyAccessToken);
 
 // GET all users
-router.get("/", UserController.getAllUsers);
+router.get("/",verifyAccessToken, allowRoles(['admin']), UserController.getAllUsers);
 
 // GET a specific user by ID
-router.get("/:id", UserController.getUserById);
-
-// POST a new user
-// router.post('/', UserController.createUser);
+router.get("/:id",verifyAccessToken, allowRoles(['admin', 'faculty','student']), UserController.getUserById);
 
 // PUT update a user by ID
-router.put("/:id", UserController.updateUser);
+router.put("/:id",verifyAccessToken, allowRoles(['admin']), UserController.updateUser);
 
 // DELETE a user by ID
-router.delete("/:id", UserController.deleteUser);
+router.delete("/:id",verifyAccessToken, allowRoles(['admin']), UserController.deleteUser);
 
 module.exports = router;

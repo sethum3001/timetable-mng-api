@@ -6,8 +6,7 @@ const dotenv = require("dotenv").config();
 const app = express();
 const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-const { verifyAccessToken } = require("./middleware/jwt_authentications.js");
-const { allowRoles } = require("./middleware/authorization.js");
+
 
 const PORT = process.env.PORT || 8070;
 
@@ -39,28 +38,22 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use("/auth", require("./routes/auth.routes.js"));
 app.use(
   "/enrollments",
-  verifyAccessToken,
   require("./routes/enrollments.js")
 );
 app.use(
   "/courses",
-  verifyAccessToken,
   require("./routes/courses.js")
 );
 app.use(
   "/resources",
-  verifyAccessToken,
   require("./routes/resources.js")
 );
 app.use(
   "/rooms",
-  verifyAccessToken,
   require("./routes/rooms.js")
 );
 app.use(
   "/timetables",
-  verifyAccessToken,
-  allowRoles([ "faculty"]),
   require("./routes/timetables.js")
 );
 app.use("/users", require("./routes/users.js"));

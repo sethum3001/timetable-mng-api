@@ -2,6 +2,8 @@ const request = require("supertest");
 const express = require("express");
 const Timetable = require("../../models/Timetables");
 const { connect, closeDatabase, clearDatabase } = require("../test-setup.js");
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv').config();
 
 beforeAll(async () => await connect());
 afterEach(async () => await clearDatabase());
@@ -13,6 +15,10 @@ app.use("/timetables", require("../../routes/timetables.js"));
 
 describe("GET /timetables", () => {
   it("should get all timetables", async () => {
+    // Create a valid access token with appropriate roles (Admin or Faculty)
+    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
+
+    // Create timetables
     await Timetable.create([
       {
         courseId: "65fad519a7b0094941422347",
@@ -30,8 +36,12 @@ describe("GET /timetables", () => {
       },
     ]);
 
-    const response = await request(app).get("/timetables");
+    // Send request with valid access token in the header
+    const response = await request(app)
+      .get("/timetables")
+      .set('Authorization', `Bearer ${token}`); // Include the access token in the header
 
+    // Assert response status and body
     expect(response.status).toBe(200);
     expect(response.body.length).toBe(2);
   });
@@ -47,15 +57,29 @@ describe("GET /timetables/:id", () => {
       location: "Room 101",
     });
 
-    const response = await request(app).get(`/timetables/${timetable._id}`);
+    // Create a valid access token with appropriate roles (Admin or Faculty)
+    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
 
+    // Send request with valid access token in the header
+    const response = await request(app)
+      .get(`/timetables/${timetable._id}`)
+      .set('Authorization', `Bearer ${token}`); // Include the access token in the header
+
+    // Assert response status and body
     expect(response.status).toBe(200);
     expect(response.body.courseId).toBe("65fad519a7b0094941422347");
   });
 
   it("should return 500 if timetable not found", async () => {
-    const response = await request(app).get("/timetables/123");
+    // Create a valid access token with appropriate roles (Admin or Faculty)
+    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
 
+    // Send request with valid access token in the header
+    const response = await request(app)
+      .get("/timetables/123")
+      .set('Authorization', `Bearer ${token}`); // Include the access token in the header
+
+    // Assert response status
     expect(response.status).toBe(500);
   });
 });
@@ -70,8 +94,16 @@ describe("POST /timetables", () => {
       location: "Room 103",
     };
 
-    const response = await request(app).post("/timetables").send(newTimetable);
+    // Create a valid access token with appropriate roles (Admin or Faculty)
+    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
 
+    // Send request with valid access token in the header
+    const response = await request(app)
+      .post("/timetables")
+      .set('Authorization', `Bearer ${token}`) // Include the access token in the header
+      .send(newTimetable);
+
+    // Assert response status and body
     expect(response.status).toBe(201);
     expect(response.body.message).toBe("Timetable created successfully");
     expect(response.body.timetable.courseId).toBe("65fad519a7b0094941422347");
@@ -80,6 +112,10 @@ describe("POST /timetables", () => {
 
 describe("PUT /timetables/:id", () => {
   it("should update an existing timetable", async () => {
+    // Create a valid access token with appropriate roles (Admin or Faculty)
+    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
+
+    // Create a timetable
     const timetable = await Timetable.create({
       courseId: "65fad5f78ba54de9537cfa58",
       dayOfWeek: "Monday",
@@ -87,6 +123,8 @@ describe("PUT /timetables/:id", () => {
       facultyId: "65fad5f78ba54de9537cfa58",
       location: "Room 101",
     });
+
+    // Updated timetable data
     const updatedTimetable = {
       courseId: "65fb2e02ddc42f2b8344cff1",
       dayOfWeek: "Thursday",
@@ -95,19 +133,28 @@ describe("PUT /timetables/:id", () => {
       location: "Room 104",
     };
 
+    // Send request with valid access token in the header
     const response = await request(app)
       .put(`/timetables/${timetable._id}`)
+      .set('Authorization', `Bearer ${token}`) // Include the access token in the header
       .send(updatedTimetable);
 
+    // Assert response status and body
     expect(response.status).toBe(200);
     expect(response.body.courseId).toBe("65fb2e02ddc42f2b8344cff1");
   });
 
   it("should return 500 if timetable not found", async () => {
+    // Create a valid access token with appropriate roles (Admin or Faculty)
+    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
+
+    // Send request with valid access token in the header
     const response = await request(app)
       .put("/timetables/123")
+      .set('Authorization', `Bearer ${token}`) // Include the access token in the header
       .send({ courseId: "C005" });
 
+    // Assert response status
     expect(response.status).toBe(500);
   });
 });
@@ -122,15 +169,29 @@ describe("DELETE /timetables/:id", () => {
       location: "Room 101",
     });
 
-    const response = await request(app).delete(`/timetables/${timetable._id}`);
+    // Create a valid access token with appropriate roles (Admin or Faculty)
+    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
 
+    // Send request with valid access token in the header
+    const response = await request(app)
+      .delete(`/timetables/${timetable._id}`)
+      .set('Authorization', `Bearer ${token}`); // Include the access token in the header
+
+    // Assert response status and body
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("Timetable deleted successfully");
   });
 
   it("should return 500 if timetable not found", async () => {
-    const response = await request(app).delete("/timetables/123");
+    // Create a valid access token with appropriate roles (Admin or Faculty)
+    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
 
+    // Send request with valid access token in the header
+    const response = await request(app)
+      .delete("/timetables/123")
+      .set('Authorization', `Bearer ${token}`); // Include the access token in the header
+
+    // Assert response status
     expect(response.status).toBe(500);
   });
 });
