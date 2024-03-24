@@ -1,4 +1,5 @@
 const User = require("../models/Users");
+const { registerSchema } = require("../middleware/joi_auth");
 const {
   signAccessToken,
   signRefreshToken,
@@ -46,18 +47,19 @@ exports.loginUser = async (req, res) => {
 };
 
 // Controller function for user registration
-exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res,next) => {
   try {
-    const { role, username, password } = req.body;
+    // Validate input data
+    const result = await registerSchema.validateAsync(req.body);
 
     // Check if user already exists
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ username: result.username });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     // Create new user
-    const newUser = new User({ role, username, password });
+    const newUser = new User({ role: result.role, username: result.username, password: result.password });
 
     // Save user to database
     const savedUser = await newUser.save();
@@ -79,8 +81,12 @@ exports.registerUser = async (req, res) => {
       .status(201)
       .json({ accessToken, refreshToken, message: "User created!" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+     if (error.isJoi === true){
+      res.status(422).json({ message: error.message });
+     }else{
+      res.status(500).json({ message: "Internal server error" });
+     }
+
   }
 };
 
