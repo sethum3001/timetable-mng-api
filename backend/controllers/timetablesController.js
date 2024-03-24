@@ -1,5 +1,5 @@
 const Timetable = require('../models/Timetables');
-const {sendEmail} = require('../service/emailService');
+const {sendEmails} = require('./notificationController');
 
 // Controller function to get all timetables
 exports.getAllTimetables = async (req, res) => {
@@ -73,14 +73,23 @@ exports.updateTimetable = async (req, res) => {
     // Save updated timetable to the database
     timetable = await timetable.save();
 
-    sendEmail();
+   // Prepare timetable change details
+   const timetableChanges = {
+    date: timetable.dayOfWeek, // Replace with actual date property
+    time: timetable.time,
+    course: timetable.courseName, // Replace with actual course name property
+    location: timetable.location
+  };  
 
-    // Respond with updated timetable data
-    res.status(200).json(timetable);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+  // Send email notifications to students
+  sendEmails(timetableChanges);
+
+  // Respond with updated timetable data
+  res.status(200).json(timetable);
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ message: 'Internal server error' });
+}
 };
 
 // Controller function to delete a timetable by ID

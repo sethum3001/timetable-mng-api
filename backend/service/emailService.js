@@ -13,17 +13,29 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-async function sendEmail() {
+async function sendEmail(timetableChanges, receivers) {
     try {
-        // Send email
-        const info = await transporter.sendMail({
-            from: '<kungfupanda3001@gmail.com>',
-            to: 'sethumrashmika3001@gmail.com',
-            subject: 'Testing email',
-            html: email_template
+        // Create email content with timetable change details
+        const emailContent = email_template
+            .replace('[Date of Change]', timetableChanges.date)
+            .replace('[New Time]', timetableChanges.time)
+            .replace('[Course Name]', timetableChanges.course)
+            .replace('[New Location]', timetableChanges.location);
+
+        // Send email to each receiver
+        const promises = receivers.map(async (receiver) => {
+            const info = await transporter.sendMail({
+                from: '<sethumrashmika3001@gmail.com>',
+                to: receiver,
+                subject: 'Timetable Change Notification',
+                html: emailContent
+            });
+            console.log("Message sent to " + receiver + ": " + info.messageId);
+            return info;
         });
-        console.log("Message sent: " + info.messageId);
-        return info;
+
+        // Wait for all emails to be sent
+        await Promise.all(promises);
     } catch (error) {
         console.error("Error sending email:", error);
         throw error;

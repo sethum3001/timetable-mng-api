@@ -59,7 +59,7 @@ exports.registerUser = async (req, res,next) => {
     }
 
     // Create new user
-    const newUser = new User({ role: result.role, username: result.username, password: result.password });
+    const newUser = new User({ role: result.role, username: result.username, email:  result.email, password: result.password });
 
     // Save user to database
     const savedUser = await newUser.save();
@@ -121,36 +121,11 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// // Controller function to create a new user
-// exports.createUser = async (req, res) => {
-//   try {
-//     const { role, username, password } = req.body;
-
-//     // Check if user already exists
-//     const existingUser = await User.findOne({ username });
-//     if (existingUser) {
-//       return res.status(400).json({ message: 'User already exists' });
-//     }
-
-//     // Create new user
-//     const newUser = new User({ role, username, password });
-
-//     // Save user to database
-//     await newUser.save();
-
-//     // Respond with success message
-//     res.status(201).json({ message: 'User created successfully', user: newUser });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
-
 // Controller function to update a user by ID
 exports.updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { role, username, password } = req.body;
+    const { role, username, email, password } = req.body;
 
     // Find user by ID in the database
     let user = await User.findById(userId);
@@ -160,6 +135,7 @@ exports.updateUser = async (req, res) => {
 
     // Update user properties
     if (username) user.username = username;
+    if (email) user.email = email;
     if (password) user.password = password;
     if (role) user.role = role;
 
