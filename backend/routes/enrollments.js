@@ -3,6 +3,7 @@ const router = express.Router();
 const enrollmentsController = require("../controllers/enrollmentsController");
 
 // GET all enrollments
+
 router.get("/", enrollmentsController.getAllEnrollments);
 
 // GET a specific enrollment by ID
