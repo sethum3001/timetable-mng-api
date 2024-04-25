@@ -14,11 +14,11 @@ const timetableSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  facultyId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Faculty',
-    required: true
-  },
+  // facultyId: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Faculty',
+  //   required: true
+  // },
   location: {
     type: String,
     required: true

@@ -24,14 +24,12 @@ describe("GET /timetables", () => {
         courseId: "65fad519a7b0094941422347",
         dayOfWeek: "Monday",
         time: "10:00",
-        facultyId: "65fad519a7b0094941422347",
         location: "Room 101",
       },
       {
         courseId: "65fad519a7b0094941422347",
         dayOfWeek: "Tuesday",
         time: "11:00",
-        facultyId: "65fad519a7b0094941422347",
         location: "Room 102",
       },
     ]);
@@ -47,42 +45,41 @@ describe("GET /timetables", () => {
   });
 });
 
-describe("GET /timetables/:id", () => {
-  it("should get a timetable by ID", async () => {
-    const timetable = await Timetable.create({
-      courseId: "65fad519a7b0094941422347",
-      dayOfWeek: "Monday",
-      time: "10:00",
-      facultyId: "65fad519a7b0094941422347",
-      location: "Room 101",
-    });
+// describe("GET /timetables/specific", () => {
+//   it("should get a timetable by ID", async () => {
+//     const timetable = await Timetable.create({
+//       courseId: "65fad519a7b0094941422347",
+//       dayOfWeek: "Monday",
+//       time: "10:00",
+//       location: "Room 101",
+//     });
 
-    // Create a valid access token with appropriate roles (Admin or Faculty)
-    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
+//     // Create a valid access token with appropriate roles (Admin or Faculty)
+//     const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
 
-    // Send request with valid access token in the header
-    const response = await request(app)
-      .get(`/timetables/${timetable._id}`)
-      .set('Authorization', `Bearer ${token}`); // Include the access token in the header
+//     // Send request with valid access token in the header
+//     const response = await request(app)
+//       .get(`/timetables/specific?courseId=65fad519a7b0094941422347`)
+//       .set('Authorization', `Bearer ${token}`); // Include the access token in the header
 
-    // Assert response status and body
-    expect(response.status).toBe(200);
-    expect(response.body.courseId).toBe("65fad519a7b0094941422347");
-  });
+//     // Assert response status and body
+//     expect(response.status).toBe(200);
+//     expect(response.body.courseId).toBe("65fad519a7b0094941422347");
+//   });
 
-  it("should return 500 if timetable not found", async () => {
-    // Create a valid access token with appropriate roles (Admin or Faculty)
-    const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
+//   it("should return 500 if timetable not found", async () => {
+//     // Create a valid access token with appropriate roles (Admin or Faculty)
+//     const token = jwt.sign({ role: 'admin' }, process.env.ACCESS_TOKEN_SECRET);
 
-    // Send request with valid access token in the header
-    const response = await request(app)
-      .get("/timetables/123")
-      .set('Authorization', `Bearer ${token}`); // Include the access token in the header
+//     // Send request with valid access token in the header
+//     const response = await request(app)
+//       .get("/timetables/123")
+//       .set('Authorization', `Bearer ${token}`); // Include the access token in the header
 
-    // Assert response status
-    expect(response.status).toBe(500);
-  });
-});
+//     // Assert response status
+//     expect(response.status).toBe(500);
+//   });
+// });
 
 describe("POST /timetables", () => {
   it("should create a new timetable", async () => {

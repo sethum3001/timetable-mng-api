@@ -35,10 +35,10 @@ exports.getTimetableById = async (req, res) => {
 // Controller function to create a new timetable
 exports.createTimetable = async (req, res) => {
   try {
-    const { courseId, dayOfWeek, time, facultyId, location } = req.body;
+    const { courseId, dayOfWeek, time, location } = req.body;
 
     // Create new timetable
-    const newTimetable = new Timetable({ courseId, dayOfWeek, time, facultyId, location });
+    const newTimetable = new Timetable({ courseId, dayOfWeek, time, location });
 
     // Save timetable to database
     await newTimetable.save();
@@ -55,7 +55,7 @@ exports.createTimetable = async (req, res) => {
 exports.updateTimetable = async (req, res) => {
   try {
     const timetableId = req.params.id;
-    const { courseId, dayOfWeek, time, facultyId, location } = req.body;
+    const { courseId, dayOfWeek, time, location } = req.body;
 
     // Find timetable by ID in the database
     let timetable = await Timetable.findById(timetableId);
@@ -67,7 +67,7 @@ exports.updateTimetable = async (req, res) => {
     if (courseId) timetable.courseId = courseId;
     if (dayOfWeek) timetable.dayOfWeek = dayOfWeek;
     if (time) timetable.time = time;
-    if (facultyId) timetable.facultyId = facultyId;
+    // if (facultyId) timetable.facultyId = facultyId;
     if (location) timetable.location = location;
 
     // Save updated timetable to the database
@@ -77,7 +77,7 @@ exports.updateTimetable = async (req, res) => {
    const timetableChanges = {
     date: timetable.dayOfWeek, // Replace with actual date property
     time: timetable.time,
-    course: timetable.courseName, // Replace with actual course name property
+    course: timetable.courseId, // Replace with actual course name property
     location: timetable.location
   };  
 
@@ -105,6 +105,26 @@ exports.deleteTimetable = async (req, res) => {
 
     // Respond with success message
     res.status(200).json({ message: 'Timetable deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.retrieveTimetable = async (req, res) => {
+  try {
+    const { facultyId, courseId } = req.query; // Assuming you pass facultyId and courseId from the frontend
+
+    // Construct the query object based on the passed values
+    const query = {};
+    // if (facultyId) query.facultyId = facultyId;
+    if (courseId) query.courseId = courseId;
+
+    // Find timetable documents that match the query criteria
+    const timetables = await Timetable.find(query);
+
+    // Respond with the found timetables
+    res.status(200).json(timetables);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
